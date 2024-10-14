@@ -1,0 +1,10 @@
+
+
+Data Science
+
+
+Data Science
+Data Science is an interdisciplinary field that focuses on extracting insights and knowledge from structured and unstructured data
+Data Science encompasses various processes, including data collection, cleaning, exploration, analysis, and visualization, allowing businesses to make informed decisions and identify trends
+Python has emerged as one of the leading programming languages in the field of Data Science due to its simplicity, versatility, and a rich ecosystem of libraries
+
