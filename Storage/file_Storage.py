@@ -33,6 +33,12 @@ class FileStorage(Storage):
         with open(text_file_path, 'w', encoding='utf-8') as text_file:
             text_file.write(text)
 
+         # Save metadata
+        metadata_file_path = os.path.join(self.output_dir, "metadata.txt")
+        with open(metadata_file_path, "w") as metadata_file:
+            for key, value in metadata.items():
+                metadata_file.write(f"{key}: {value}\n")
+
         # Save extracted links
         links = self.extractor.extract_links()
         links_file_path = os.path.join(self.output_dir, 'extracted_links.txt')

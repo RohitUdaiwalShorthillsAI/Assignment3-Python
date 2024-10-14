@@ -6,6 +6,7 @@ import fitz  # PyMuPDF for PDF handling
 import docx  # python-docx for DOCX
 import pptx  # python-pptx for PPTX
 import io
+from PyPDF2 import PdfReader 
 from PIL import Image
 import sqlite3
 
@@ -15,12 +16,19 @@ class PDFDataExtractor:
         self.file_path = loader.file_path
 
     def extract_text(self):
-        """Extract text and metadata from the PDF."""
-        with fitz.open(self.file_path) as doc:
+        """Extract text and metadata from PDF file."""
+        with open(self.file_path, "rb") as f:
+            reader = PdfReader(f)  # Use PdfReader instead of PdfFileReader
             text = ""
-            for page in doc:
-                text += page.get_text()
-        metadata = doc.metadata
+            for page in reader.pages:
+                text += page.extract_text() or ""  # Ensure we handle None
+            
+            # Extract metadata
+            metadata = {
+                "author": reader.metadata.get('/Author'),
+                "title": reader.metadata.get('/Title'),
+                "created": reader.metadata.get('/CreationDate')
+            }
         return text, metadata
 
     def extract_images(self):
@@ -75,10 +83,17 @@ class DOCXDataExtractor:
         self.file_path = loader.file_path
 
     def extract_text(self):
-        """Extract text from DOCX file."""
+        """Extract text and metadata from DOCX file."""
         doc = docx.Document(self.file_path)
         text = "\n".join([para.text for para in doc.paragraphs])
-        metadata = {}  # DOCX metadata isn't as readily available
+
+        # Extract metadata (if available)
+        metadata = {
+            "author": doc.core_properties.author,
+            "created": doc.core_properties.created,
+            "last_modified_by": doc.core_properties.last_modified_by,
+            "title": doc.core_properties.title
+        }
         return text, metadata
 
     def extract_images(self):
@@ -137,14 +152,21 @@ class PPTDataExtractor:
         self.file_path = loader.file_path
 
     def extract_text(self):
-        """Extract text from PPTX file."""
+        """Extract text and metadata from PPTX file."""
         presentation = pptx.Presentation(self.file_path)
         text = ""
         for slide_num, slide in enumerate(presentation.slides):
             for shape in slide.shapes:
                 if hasattr(shape, "text"):
                     text += shape.text + "\n"
-        metadata = {}  # PPTX metadata can be accessed if necessary
+        
+        # Extract metadata
+        metadata = {
+            "author": presentation.core_properties.author,
+            "created": presentation.core_properties.created,
+            "last_modified_by": presentation.core_properties.last_modified_by,
+            "title": presentation.core_properties.title
+        }
         return text, metadata
 
     """Extract images from PPTX file as BLOBs."""
