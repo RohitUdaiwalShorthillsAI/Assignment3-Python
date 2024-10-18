@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 import os
 import csv
-# import sqlite3
 from Data_extraction.Extractors import PDFDataExtractor
 from Data_extraction.Extractors import PPTDataExtractor
 from Data_extraction.Extractors import DOCXDataExtractor
@@ -9,9 +8,14 @@ from Loaders.pdf_loader import PDFLoader
 from Loaders.ppt_loader import PPTLoader
 from Loaders.docx_loader import DOCXLoader
 
-#Abstract - Class: Storage
+# Abstract Class: Storage
 class Storage(ABC):
     def __init__(self, extractor):
+        """
+        Initialize the Storage class with a data extractor.
+
+        :param extractor: An instance of the data extractor to be used for data extraction.
+        """
         self.extractor = extractor
 
     @abstractmethod
@@ -22,18 +26,28 @@ class Storage(ABC):
 
 class FileStorage(Storage):
     def __init__(self, extractor, output_dir):
+        """
+        Initialize FileStorage with an extractor and output directory.
+
+        :param extractor: An instance of the data extractor.
+        :param output_dir: The directory where extracted data will be saved.
+        """
         super().__init__(extractor)
         self.output_dir = output_dir
+        # Create the output directory if it does not exist
         os.makedirs(self.output_dir, exist_ok=True)
 
     def save(self):
+        """
+        Save the extracted data (text, metadata, images, links, tables) to the specified output directory.
+        """
         # Save extracted text
         text, metadata = self.extractor.extract_text()
         text_file_path = os.path.join(self.output_dir, 'extracted_text.txt')
         with open(text_file_path, 'w', encoding='utf-8') as text_file:
             text_file.write(text)
 
-         # Save metadata
+        # Save metadata to a separate file
         metadata_file_path = os.path.join(self.output_dir, "metadata.txt")
         with open(metadata_file_path, "w") as metadata_file:
             for key, value in metadata.items():
@@ -62,8 +76,6 @@ class FileStorage(Storage):
             with open(table_file_path, 'w', newline='', encoding='utf-8') as csv_file:
                 writer = csv.writer(csv_file)
                 for row in table:
-                    writer.writerow(row)
+                    writer.writerow(row)  # Write each row of the table to the CSV file
 
         print(f"Data saved to file system in directory {self.output_dir}")
-
-
