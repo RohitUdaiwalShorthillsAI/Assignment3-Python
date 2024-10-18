@@ -18,7 +18,7 @@ class Storage(ABC):
             host= os.getenv('DB_HOST'),
             user= os.getenv('DB_USER'),
             password= os.getenv('DB_PASSWORD'),
-            database= os.getenv('DB_DATABASE'),  # MySQL database name
+            database= os.getenv('DB_'),  # MySQL database name
             auth_plugin='mysql_native_password'  # Use the native authentication plugin
         )
 
