@@ -1,30 +1,10 @@
 from abc import ABC, abstractmethod
 import os
 import csv
-from Data_extraction.Extractors import PDFDataExtractor
-from Data_extraction.Extractors import PPTDataExtractor
-from Data_extraction.Extractors import DOCXDataExtractor
-from Loaders.pdf_loader import PDFLoader
-from Loaders.ppt_loader import PPTLoader
-from Loaders.docx_loader import DOCXLoader
+from Loaders.file_loader import FileLoader
+from Data_extraction.file_extractor import FileDataExtractor
 
-# Abstract Class: Storage
-class Storage(ABC):
-    def __init__(self, extractor):
-        """
-        Initialize the Storage class with a data extractor.
-
-        :param extractor: An instance of the data extractor to be used for data extraction.
-        """
-        self.extractor = extractor
-
-    @abstractmethod
-    def save(self):
-        """Save the extracted data."""
-        pass
-
-
-class FileStorage(Storage):
+class FileStorage():
     def __init__(self, extractor, output_dir):
         """
         Initialize FileStorage with an extractor and output directory.
@@ -32,7 +12,7 @@ class FileStorage(Storage):
         :param extractor: An instance of the data extractor.
         :param output_dir: The directory where extracted data will be saved.
         """
-        super().__init__(extractor)
+        self.extractor = extractor
         self.output_dir = output_dir
         # Create the output directory if it does not exist
         os.makedirs(self.output_dir, exist_ok=True)

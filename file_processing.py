@@ -1,31 +1,19 @@
-from Loaders.pdf_loader import PDFLoader
-from Loaders.docx_loader import DOCXLoader
-from Loaders.ppt_loader import PPTLoader
-from Data_extraction.Extractors import PDFDataExtractor, DOCXDataExtractor, PPTDataExtractor
+from Loaders.file_loader import FileLoader
+from Data_extraction.file_extractor import FileDataExtractor
 from Storage.file_Storage import FileStorage
 from Storage.SQL_storage import MySQLStorage
 from tabulate import tabulate
 
 
 class FileProcessor:
-    def __init__(self, loader, extractor_class, file_path):
-        self.loader = loader
-        self.extractor_class = extractor_class
+    def __init__(self, file_path):
         self.file_path = file_path
-        self.extractor = None
+        self.extractor = FileDataExtractor(self.file_path)
 
-    def load_file(self):
-        # Validate the file format before proceeding with loading
-        is_valid, message = self.loader.validate_file(self.file_path)
-        if not is_valid:
-            raise ValueError(f"Invalid file: {message}")
-
+    def load_data(self):
         # Load the file content using the loader
-        self.loader.file_path = self.file_path
-        content = self.loader.load_file(self.file_path)
-
-        # Initialize the extractor to extract data from the loaded file
-        self.extractor = self.extractor_class(self.loader)
+        content = FileLoader.load_file(self.file_path)  # Ensure file_path is passed here as well
+        print(content)
         return content
 
     def extract_data(self):
@@ -52,8 +40,7 @@ class FileProcessor:
         if storage_type == "sql":
             storage.close()
 
-
-    def display_extracted_data(self,file_type, data):
+    def display_extracted_data(self, file_type, data):
         def display_metadata(metadata, allowed_keys):
             for key, value in metadata.items():
                 if key in allowed_keys:
@@ -102,18 +89,14 @@ class FileProcessor:
 
         print(f"========== End of Extraction for {file_type.upper()} ==========\n")
 
-
+    @staticmethod
     def process_file(file_type, file_path, storage_type="file", storage_path=None):
-        # Mapping of file types to their respective loaders and extractors
-        loader_map = {'pdf': PDFLoader(), 'docx': DOCXLoader(), 'pptx': PPTLoader()}
-        extractor_map = {'pdf': PDFDataExtractor, 'docx': DOCXDataExtractor, 'pptx': PPTDataExtractor}
-
         # Create a FileProcessor instance to handle the file processing
-        processor = FileProcessor(loader_map[file_type], extractor_map[file_type], file_path)
+        processor = FileProcessor(file_path)
         print(f"Processing {file_type.upper()} file: {file_path}")
 
         # Load, extract, display, and store data
-        processor.load_file()
+        processor.load_data()
         data = processor.extract_data()
         processor.display_extracted_data(file_type, data)
         processor.store_data(storage_type, storage_path)

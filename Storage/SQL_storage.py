@@ -3,13 +3,18 @@ from abc import ABC, abstractmethod
 import os
 from dotenv import load_dotenv
 
-# Abstract Class: Storage
-class Storage(ABC):
+import mysql.connector
+from abc import ABC, abstractmethod
+import os
+from dotenv import load_dotenv
+
+class MySQLStorage():
+    table_name = 1
     def __init__(self, extractor):
         """
-        Initialize the Storage class with a data extractor and establish a MySQL database connection.
+        Initialize MySQLStorage with an extractor and create necessary database tables.
 
-        :param extractor: An instance of the data extractor to be used for data extraction.
+        :param extractor: An instance of the data extractor.
         """
         load_dotenv()
         
@@ -18,24 +23,9 @@ class Storage(ABC):
             host= os.getenv('DB_HOST'),
             user= os.getenv('DB_USER'),
             password= os.getenv('DB_PASSWORD'),
-            database= os.getenv('DB_'),  # MySQL database name
+            database= os.getenv('DB_DATABASE'),  # MySQL database name
             auth_plugin='mysql_native_password'  # Use the native authentication plugin
         )
-
-    @abstractmethod
-    def save(self):
-        """Save the extracted data to the database."""
-        pass
-
-class MySQLStorage(Storage):
-    table_name = 1
-    def __init__(self, extractor):
-        """
-        Initialize MySQLStorage with an extractor and create necessary database tables.
-
-        :param extractor: An instance of the data extractor.
-        """
-        super().__init__(extractor)
         self.cursor = self.conn.cursor()  # Create a cursor to interact with the database
         self.create_tables()  # Create tables if they don't exist
 
@@ -47,7 +37,6 @@ class MySQLStorage(Storage):
         self.cursor.execute('''CREATE TABLE IF NOT EXISTS extracted_text (content TEXT)''')
         self.cursor.execute('''CREATE TABLE IF NOT EXISTS extracted_links (link TEXT, page_number INTEGER)''')
         self.cursor.execute('''CREATE TABLE IF NOT EXISTS extracted_images (image LONGBLOB, image_format TEXT, resolution TEXT, page_number INTEGER)''')
-        self.cursor.execute('''CREATE TABLE IF NOT EXISTS extracted_tables (table_id INTEGER, row_data TEXT)''')
         self.conn.commit()  # Commit the table creation to the database
 
     def save(self):

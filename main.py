@@ -9,6 +9,13 @@ class Main:
         # Extract the file extension
         file_type = os.path.splitext(filePath)[1][1:]  # Extracts the file extension
         print(file_type)
+        if not os.path.exists(filePath):
+            print("File does not exist.")  # File doesn't exist
+        # Check file extension and validate type
+        if file_type in ['pdf', 'docx', 'pptx']:
+            print("File is valid.")  # File exists and is valid
+        else:
+            print("Unsupported file type. Only PDF, DOCX, and PPTX files are supported.")
 
         FileProcessor.process_file(
             file_type=file_type, 
